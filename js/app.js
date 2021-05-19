@@ -6,6 +6,11 @@
 */
 
 
+// funcion anonima
+(() => {
+
+   'use strict'
+   
 let deck         = []; // Baraja
 const tipos      = ['C', 'D', 'H', 'S'];
 const especiales = ['A', 'J', 'Q', 'K'];
@@ -55,9 +60,6 @@ for( let tipo of tipos){
 
 
 deck = _.shuffle( deck ); 
-
-console.log( deck );
-
 return deck;
 
 
@@ -76,7 +78,7 @@ if ( deck.length === 0 ){
 
  }
 
-  carta = deck.pop();
+  let carta = deck.pop();
   return carta;
 
 }
@@ -219,7 +221,24 @@ const quienGana = ()=> {
 
 
 
+})(); // funcion anonima autoinvocada, crea un nuevo escope el cual no tiene una referencia por nombre, por lo cual no va ser posible llamar al objeto directamente
 
-// TODO:  Borrar
+
+
+
+// //funcion normal 
+
+// (function() {
+
+
+
+// })();
+
+
+
+
+
+
+
 
 

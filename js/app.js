@@ -7,219 +7,234 @@
 
 
 // funcion anonima
-(() => {
+const miModulo = (() => {
 
-   'use strict'
-   
-let deck         = []; // Baraja
-const tipos      = ['C', 'D', 'H', 'S'];
-const especiales = ['A', 'J', 'Q', 'K'];
-
-let puntosJugador = 0,
-    puntosComputadora = 0;
-
-    
-// Referencias del HTML
-
-const btnPedir = document.querySelector('#btnPedir');
-const btnDetener = document.querySelector('#btnDetener');
-const btnNuevo = document.querySelector('#btnNuevo');
-
-
-const divCartasJugador = document.querySelector('#jugador-cartas');
-const divCartasComputadora = document.querySelector('#computadora-cartas');
-
-const puntosHTML = document.querySelectorAll('small');
+   'use strict';
 
 
 
 
-const crearDeck = () => {
-
-for( let i = 2; i <= 10; i++ ){
-   
-   for( let tipo of tipos) { // este for itera por cada uno de los elementos del for principal
-
-    deck.push( i + tipo);
+   let deck = []; // Baraja
+   const tipos = ['C', 'D', 'H', 'S'],
+      especiales = ['A', 'J', 'Q', 'K'];
 
 
-   }
-}
-
-for( let tipo of tipos){
-
-   for (let esp of especiales){
-
-    deck.push(esp + tipo);
+   let puntosJugadores = [];
 
 
-   }
- 
-
-}
-
-
-deck = _.shuffle( deck ); 
-return deck;
+   // Referencias del HTML
+   const btnPedir = document.querySelector('#btnPedir'),
+      btnDetener = document.querySelector('#btnDetener'),
+      btnNuevo = document.querySelector('#btnNuevo');
 
 
-}
-
-crearDeck();
-
-
-// Esta función me permite tomar una carta 
-
-const pedirCarta = (deck) => {
-
-if ( deck.length === 0 ){    
-
-    throw 'No hay cartas en el deck';
-
- }
-
-  let carta = deck.pop();
-  return carta;
-
-}
+   const divCartasJugadores = document.querySelectorAll('.divCartas'),
+      puntosHTML = document.querySelectorAll('small');
 
 
 
 
-const valorCarta = ( carta ) => {
-
-   
-    const valor = carta.substring(0, carta.length - 1);
-
-    return ( isNaN(valor)) ?
-            (valor === 'A') ? 11 : 10 
-            : valor * 1;
-       
-
-  
-}
+   // Esta función inicializa el juego
+   const inicializarJuego = (numJugadores = 2) => {
 
 
+      deck = crearDeck();
+      puntosJugadores = [];
+      for (let i = 0; i < numJugadores; i++) {
 
-// turno de la computadora 
-const  turnoComputadora = ( puntosMinimos ) => {
-
-
-   do{
-
-
-      const carta = pedirCarta(deck);
-
-      puntosComputadora = puntosComputadora + valorCarta( carta );
-      puntosHTML[1].innerText = puntosComputadora;
-      
-      // <img class="carta" src="assets/cartas/10C.png" alt=""> 
-      
-      const imgCarta = document.createElement('img');
-      imgCarta.src = `assets/cartas/${ carta }.png`; //3H, JD, AC
-      imgCarta.classList.add('carta'); 
+         puntosJugadores.push(0);
         
-      divCartasComputadora.append ( imgCarta );
+
+      }
+      puntosHTML.forEach(elem => elem.innerText = 0);
+      divCartasJugadores.forEach(elem => elem.innerHTML = '');
+
+      btnPedir.disabled = false;
+      btnDetener.disabled = false;
 
 
-      if( puntosMinimos > 21 ){
+   }
 
-       break;
 
+
+
+   // Esta función crea un nuevo deck
+   const crearDeck = () => {
+      deck = [];
+      for (let i = 2; i <= 10; i++) {
+
+         for (let tipo of tipos) { // este for itera por cada uno de los elementos del for principal
+            deck.push(i + tipo);
+         }
+      }
+      for (let tipo of tipos) {
+
+         for (let esp of especiales) {
+            deck.push(esp + tipo);
+
+         }
       }
 
 
-   } while( puntosComputadora < puntosMinimos && (puntosMinimos <= 21 ));
-    
+      return _.shuffle(deck);
 
-   setTimeout (() => {
-
-      quienGana();
-
-
-   }, 50);
-   
-}
+   }
 
 
 
+   // Esta función me permite tomar una carta 
 
-//EVENTOS DOM
+   const pedirCarta = (deck) => {
 
-btnPedir.addEventListener('click',  ()=> {
+      if (deck.length === 0) {
 
-const carta = pedirCarta(deck);
+         throw 'No hay cartas en el deck';
 
-puntosJugador = puntosJugador + valorCarta( carta );
-puntosHTML[0].innerText = puntosJugador;
+      }
+      return deck.pop();
 
-// <img class="carta" src="assets/cartas/10C.png" alt=""> 
-
-
-const imgCarta = document.createElement('img');
-imgCarta.src = `assets/cartas/${ carta }.png`; //3H, JD
-imgCarta.classList.add('carta'); 
-  
-divCartasJugador.append ( imgCarta );
-
-
-if (puntosJugador > 21 ){
-
-console.log('Lo siento mucho, perdiste');
-btnPedir.disabled = true;
-
-} else if ( puntosJugador === 21 ){
-
-
- console.warn('21, Ganaste!');
-
-}
-
-});
+   }
 
 
 
 
+   const valorCarta = (carta) => {
 
-btnDetener.addEventListener('click', () => {
+      const valor = carta.substring(0, carta.length - 1);
+      return (isNaN(valor)) ?
+         (valor === 'A') ? 11 : 10 
+         : valor * 1; 
 
-
-   btnPedir.disabled = true;
-   btnDetener.disabled = true;
-   turnoComputadora(puntosJugador);
-
-     
-});
-
-
-btnNuevo.addEventListener('click', () => {
-   
-   console.clear();
-   btnPedir.disabled   = false;
-   btnDetener.disabled = false;
-   location.reload();
- 
-   
-
-});
-
-
-
-//Funcion quien gana ? 
-
-const quienGana = ()=> { 
- (puntosJugador === puntosComputadora)?                   alert("Nadie Gana!"):
- (puntosJugador > 21 && puntosComputadora < 21)?  alert("La computadora gana"):
- (puntosComputadora > 21 && puntosJugador < 21)?             alert("Ganaste!"): 
- (puntosComputadora < puntosJugador && puntosJugador < 21)?  alert("Ganaste!"):
- (puntosJugador === 21)?       alert("Ganaste"): alert("La computadora Gana!");
-
-}
+   }
 
 
 
 
+   // Turno: 0 = primer jugador y el último cero la computadora
+   const acumularPuntos = (carta, turno) => {
+      puntosJugadores[turno] = puntosJugadores[turno] + valorCarta(carta);
+      puntosHTML[turno].innerText = puntosJugadores[turno];
+      return puntosJugadores[turno];
 
+
+
+   }
+
+   const crearCarta = (carta, turno) => {
+
+      const imgCarta = document.createElement('img');
+      imgCarta.src = `assets/cartas/${carta}.png`; //3H, JD, AC
+      imgCarta.classList.add('carta');
+      divCartasJugadores[turno].append(imgCarta);
+
+
+   }
+
+
+   //Funcion quien gana ? 
+   const quienGana = () => {
+
+      const [puntosMinimos, puntosComputadora] = puntosJugadores; // Desestructuración de arreglos 
+
+      setTimeout(() => {
+
+         (puntosComputadora === puntosMinimos) ? alert("Nadie Gana!") :
+            (puntosMinimos > 21) ? alert("La computadora gana") :
+               (puntosComputadora > 21) ? alert("Ganaste!") : alert("La computadora Gana!");
+
+      }, 100);
+
+   }
+
+
+
+   // turno de la computadora 
+   const turnoComputadora = (puntosMinimos) => {
+     let puntosComputadora = 0;
+
+      do {
+
+         const carta = pedirCarta(deck);
+         puntosComputadora = acumularPuntos(carta, puntosJugadores.length - 1);
+         crearCarta(carta, puntosJugadores.length - 1);
+
+
+      } while ((puntosComputadora < puntosMinimos) && (puntosMinimos <= 21));
+
+
+      quienGana(puntosComputadora);
+
+
+
+
+   }
+
+
+
+
+   //EVENTOS DOM
+
+   btnPedir.addEventListener('click', () => {
+
+      const carta = pedirCarta(deck);
+      const puntosJugadores = acumularPuntos(carta, 0);
+
+      crearCarta(carta, 0);
+
+
+      if (puntosJugadores > 21) {
+         
+         console.warn('Lo siento mucho, perdiste');
+         btnPedir.disabled = true;
+         btnDetener.disabled = true;
+         turnoComputadora(puntosJugadores);
+
+
+      } else if (puntosJugadores === 21) {
+
+         btnPedir.disabled = true;
+         btnDetener.disabled = true;
+         turnoComputadora(puntosJugadores)
+         console.warn('21, Ganaste!');
+
+      }
+
+   });
+
+
+
+
+
+   btnDetener.addEventListener('click', () => {
+
+
+      btnPedir.disabled = true;
+      btnDetener.disabled = true;
+      turnoComputadora(puntosJugadores[0]);
+
+
+   });
+
+
+   // btnNuevo.addEventListener('click', () => {
+   //    console.clear();
+   //    inicializarJuego();
+   //    btnPedir.disabled   = false;
+   //    btnDetener.disabled = false;
+   // });
+
+
+
+
+
+
+
+
+   return {
+
+      nuevoJuego: inicializarJuego
+
+   }
 
 })(); // funcion anonima autoinvocada, crea un nuevo escope el cual no tiene una referencia por nombre, por lo cual no va ser posible llamar al objeto directamente
 
